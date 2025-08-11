@@ -28,7 +28,7 @@ async function AutoMessage(client) {
     }
 
     const row = new ActionRowBuilder().addComponents(
-      new ButtonBuilder({ style: 2, customId: 'auto_message', label: 'Ver Regras' })
+      new ButtonBuilder({ style: 2, customId: 'auto_message', emoji: '1330247704726732811', label: 'Ver Regras' })
     );
 
     await channel.send({ content: 'Clique abaixo e leia antes de enviar algo aqui.', components: [row] });

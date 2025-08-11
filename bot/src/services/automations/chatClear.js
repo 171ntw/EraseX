@@ -48,7 +48,7 @@ async function AutoChat(client) {
       .setFooter({ text: 'Chat limpo com sucesso!', iconURL: `${client.user.avatarURL()}` });
   
     const row = new ActionRowBuilder().addComponents(
-      new ButtonBuilder({ style: 2, customId: 'chat_cleaned', disabled: true, label: 'Mensagem do Sistema' })
+      new ButtonBuilder({ style: 2, customId: 'chat_cleaned', disabled: true, emoji: '1336577295082721280', label: 'Mensagem do Sistema' })
     );
   
     await channel.send({ content: '', embeds: [embed], components: [row] });

@@ -5,9 +5,9 @@ createEvent({
   only: false,
 
   async run(message, client) {
+    if (message.channel.id !== process.env.channelSuggestion) return;
     if (message.author.bot && message.author.id !== client.user.id) return await message.delete().catch(() => null);
     if (message.author.bot) return;
-    if (message.channel.id !== process.env.channelSuggestion) return;
 
     const thread = await message.startThread({
       name: 'Discutir sobre a Sugestão',
