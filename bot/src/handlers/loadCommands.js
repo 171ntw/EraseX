@@ -1,3 +1,4 @@
+import { commands } from "#app/base/Command.js";
 import { readdir } from "fs/promises";
 import { dirname, join } from "path";
 import { fileURLToPath, pathToFileURL } from "url";
@@ -15,19 +16,22 @@ export async function loadCommands(client) {
       for (const file of files) {
         if (!file.endsWith('.js')) continue;
 
-        const { default: command } = await import(pathToFileURL(join(path, folder, file)).href);
-
-        if (!command || !command.name) {
-          console.warn(`\u001b[33m[WARN] Invalid command in file: ${file}\u001b[0m`);
-          continue;
-        }
-
-        client.commands.set(command.name, command);
-        console.log(`\u001b[32m[INFO] Loaded command: ${command.name}\u001b[0m`);
+        const filePath = join(path, folder, file);
+        await import(pathToFileURL(filePath).href);
       }
     }
 
-    client.on('ready', () => {
+    for (const command of commands) {
+      if (!command || !command.name) {
+        console.warn(`\u001b[33m[WARN] Invalid command detected.\u001b[0m`);
+        continue;
+      }
+
+      client.commands.set(command.name, command);
+      console.log(`\u001b[32m[INFO] Loaded command: ${command.name}\u001b[0m`);
+    }
+
+    client.on('ready', async () => {
       console.log(`\u001b[32m[INFO] ${client.user.tag} is online and ready!\u001b[0m`);
 
       client.user.setPresence({
@@ -37,14 +41,18 @@ export async function loadCommands(client) {
         ],
       });
 
-      client.guilds.cache.forEach(async guild => {
-        await guild.commands.set([...client.commands.values()]);
+      for (const guild of client.guilds.cache.values()) {
+        const data = [...client.commands.values()].map(cmd => ({ name: cmd.name, description: cmd.description, type: cmd.type, options: cmd.options || [] }));
+
+        await guild.commands.set(data);
         console.log(`\u001b[32m[INFO] Commands synced for guild: ${guild.name} (${guild.id})\u001b[0m`);
-      });
+      }
     });
 
     client.on('guildCreate', async (guild) => {
-      await guild.commands.set([...client.commands.values()]);
+      const data = [...client.commands.values()].map(cmd => ({ name: cmd.name, description: cmd.description, type: cmd.type, options: cmd.options || [], }));
+
+      await guild.commands.set(data);
       console.log(`\u001b[32m[INFO] Commands synced for new guild: ${guild.name} (${guild.id})\u001b[0m`);
     });
   } catch (error) {
